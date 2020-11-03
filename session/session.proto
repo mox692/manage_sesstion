@@ -1,0 +1,31 @@
+
+syntax = "proto3";
+package session;
+option go_package = "session";
+
+service Session {
+
+    rpc SetSessioin(SessionRequest) returns (SetStatus){}
+
+    rpc GetSession(SessionRequest) returns(GetStatus){}
+}
+
+
+// monikatuからセッションを登録する際のdata
+message SessionRequest {
+    string statusID = 1;
+    string userID = 2;
+}
+
+message SetStatus{
+    string setStatusCode = 1;
+}
+
+message GetStatus{
+    string getStatusCode = 1;
+}
+
+
+
+
+
