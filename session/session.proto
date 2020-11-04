@@ -5,7 +5,7 @@ option go_package = "session";
 
 service Session {
 
-    rpc SetSessioin(SessionRequest) returns (SetStatus){}
+    rpc SetSession(SessionRequest) returns (SetStatus){}
 
     rpc GetSession(SessionRequest) returns(GetStatus){}
 }
