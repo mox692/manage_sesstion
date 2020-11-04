@@ -4,6 +4,7 @@ package session
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -17,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SessionClient interface {
-	SetSessioin(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SetStatus, error)
+	SetSession(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SetStatus, error)
 	GetSession(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*GetStatus, error)
 }
 
@@ -29,9 +30,9 @@ func NewSessionClient(cc grpc.ClientConnInterface) SessionClient {
 	return &sessionClient{cc}
 }
 
-func (c *sessionClient) SetSessioin(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SetStatus, error) {
+func (c *sessionClient) SetSession(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SetStatus, error) {
 	out := new(SetStatus)
-	err := c.cc.Invoke(ctx, "/session.Session/SetSessioin", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/session.Session/SetSession", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (c *sessionClient) GetSession(ctx context.Context, in *SessionRequest, opts
 // All implementations must embed UnimplementedSessionServer
 // for forward compatibility
 type SessionServer interface {
-	SetSessioin(context.Context, *SessionRequest) (*SetStatus, error)
+	SetSession(context.Context, *SessionRequest) (*SetStatus, error)
 	GetSession(context.Context, *SessionRequest) (*GetStatus, error)
 	mustEmbedUnimplementedSessionServer()
 }
@@ -60,8 +61,8 @@ type SessionServer interface {
 type UnimplementedSessionServer struct {
 }
 
-func (UnimplementedSessionServer) SetSessioin(context.Context, *SessionRequest) (*SetStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetSessioin not implemented")
+func (UnimplementedSessionServer) SetSession(context.Context, *SessionRequest) (*SetStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetSession not implemented")
 }
 func (UnimplementedSessionServer) GetSession(context.Context, *SessionRequest) (*GetStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSession not implemented")
@@ -79,20 +80,20 @@ func RegisterSessionServer(s grpc.ServiceRegistrar, srv SessionServer) {
 	s.RegisterService(&_Session_serviceDesc, srv)
 }
 
-func _Session_SetSessioin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Session_SetSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SessionServer).SetSessioin(ctx, in)
+		return srv.(SessionServer).SetSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/session.Session/SetSessioin",
+		FullMethod: "/session.Session/SetSession",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServer).SetSessioin(ctx, req.(*SessionRequest))
+		return srv.(SessionServer).SetSession(ctx, req.(*SessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -120,8 +121,8 @@ var _Session_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*SessionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SetSessioin",
-			Handler:    _Session_SetSessioin_Handler,
+			MethodName: "SetSession",
+			Handler:    _Session_SetSession_Handler,
 		},
 		{
 			MethodName: "GetSession",

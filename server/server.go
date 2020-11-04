@@ -5,40 +5,45 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"session/config"
+	"session/kvs"
 	"session/session"
 
-	"github.com/gomodule/redigo/redis"
+	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )
 
-var Conn redis.Conn
+var (
+	STATUS_OK  = "0"
+	STATUS_BAD = "-1"
+)
 
 type sessionServer struct {
 	session.UnimplementedSessionServer
 }
 
 func (ss *sessionServer) SetSession(ctx context.Context, request *session.SessionRequest) (*session.SetStatus, error) {
-	// redisへのセッション登録処理
 
-	return &session.SetStatus{}, nil
+	// redisへのセッション登録処理
+	statusID := request.StatusID
+	userID := request.UserID
+
+	err := kvs.Set(userID, statusID, kvs.Conn)
+	if err != nil {
+		return &session.SetStatus{SetStatusCode: STATUS_BAD}, xerrors.Errorf("kvs.Set err :%w", err)
+	}
+	return &session.SetStatus{SetStatusCode: STATUS_OK}, nil
 }
+
 func (ss *sessionServer) GetSession(ctx context.Context, request *session.SessionRequest) (*session.GetStatus, error) {
 	// redisからのセッション取得処理
+	userID := request.UserID
 
-	return &session.GetStatus{}, nil
-}
-
-func runRedis() error {
-
-	addr := os.Getenv("REDIS_ADDRESS")
-	var err error
-	Conn, err = redis.Dial("tcp", addr)
+	status, err := kvs.Get(userID, kvs.Conn)
 	if err != nil {
-		return err
+		return &session.GetStatus{GetStatusCode: STATUS_BAD}, xerrors.Errorf("kvs.Get err :%w", err)
 	}
-	return nil
+	return &session.GetStatus{GetStatusCode: status}, nil
 }
 
 func main() {
@@ -56,7 +61,7 @@ func main() {
 	fmt.Println("runnnig!")
 
 	// redisの起動処理
-	err = runRedis()
+	err = kvs.RunRedis()
 	if err != nil {
 		log.Fatal("err: %w", err)
 	}
@@ -64,9 +69,4 @@ func main() {
 	grpcServer := grpc.NewServer()
 	session.RegisterSessionServer(grpcServer, &sessionServer{})
 	grpcServer.Serve(lis)
-
-}
-
-func checkENV() bool {
-	return os.Getenv("ENV") == "local"
 }
