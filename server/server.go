@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"session/config"
 	"session/kvs"
 	"session/session"
@@ -51,21 +52,21 @@ func main() {
 	// 環境変数のセット
 	err := config.GetENV()
 	if err != nil {
-		log.Fatal("err: %w", err)
+		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", ":9090")
+	lis, err := net.Listen("tcp", os.Getenv("SERVER_PORT"))
 	if err != nil {
-		log.Fatal("err: %w", err)
+		log.Fatal(err)
 	}
-	fmt.Println("runnnig!")
 
 	// redisの起動処理
 	err = kvs.RunRedis()
 	if err != nil {
-		log.Fatal("err: %w", err)
+		log.Fatal(err)
 	}
 
+	fmt.Printf("server runnnig!(port: %s)\n", os.Getenv("REDIS_PORT"))
 	grpcServer := grpc.NewServer()
 	session.RegisterSessionServer(grpcServer, &sessionServer{})
 	grpcServer.Serve(lis)
