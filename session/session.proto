@@ -18,11 +18,14 @@ message SessionRequest {
 }
 
 message SetStatus{
-    string setStatusCode = 1;
+    int32 statusCode = 1;
+    string errMessage = 2;
 }
 
 message GetStatus{
-    string getStatusCode = 1;
+    int32 statusCode = 1;
+    string data = 2;
+    string errMessage = 3;
 }
 
 
