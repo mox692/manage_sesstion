@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func Test_SetSessionandGetSession(t *testing.T) {
+func Test_SetSessionAndGetSession(t *testing.T) {
 
 	server := &sessionServer{}
 
@@ -87,4 +87,35 @@ func Test_SetSessionandGetSession(t *testing.T) {
 			t.Errorf("GetSession err: expect %s ,but got %s\n", expects[i], status.GetStatusCode)
 		}
 	}
+}
+
+func Test_GetSessionNilReturn(t *testing.T) {
+
+	server := &sessionServer{}
+
+	// 環境変数を設定
+	err := config.GetENV()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// redisを起動
+	err = kvs.RunRedis()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 存在しないkeyでリクエスト
+	request := session.SessionRequest{UserID: "rwqekjlqew43"}
+
+	ctx := context.Background()
+	getStatus, err := server.GetSession(ctx, &request)
+
+	if err != nil {
+		t.Errorf("%+v", err)
+	}
+	if getStatus.GetStatusCode != kvs.NilReturn {
+		t.Errorf("expect %s, but got %s", kvs.NilReturn, getStatus)
+	}
+
 }

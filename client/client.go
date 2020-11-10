@@ -25,13 +25,20 @@ func main() {
 	}
 
 	client := session.NewSessionClient(conn)
-
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	status, err := client.SetSession(ctx, &session.SessionRequest{StatusID: "2.3", UserID: "fdaoisjgg"})
+	setStatus, err := client.SetSession(ctx, &session.SessionRequest{StatusID: "2.3", UserID: "fdaoisjgg"})
 	if err != nil {
 		fmt.Printf("err : %s\n", err)
 		return
 	}
-	fmt.Printf("request success!\n status: %+v\n", status)
+	fmt.Printf("request success!\n status: %+v\n", setStatus)
+
+	getStatus, err := client.GetSession(ctx, &session.SessionRequest{UserID: "fdaoisjsssgg"})
+	if err != nil {
+		fmt.Printf("err : %s\n", err)
+		return
+	}
+	fmt.Printf("request success!\n getstatus: %+v\n", getStatus)
+
 }
