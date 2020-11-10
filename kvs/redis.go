@@ -34,9 +34,6 @@ func Set(key, value string, c redis.Conn) error {
 
 func Get(key string, c redis.Conn) (string, error) {
 	res, err := redis.String(c.Do("GET", key))
-	if err == redis.ErrNil {
-		return NilReturn, nil
-	}
 	if err != nil {
 		return "", xerrors.Errorf("Do error: %w", err)
 	}

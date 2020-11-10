@@ -50,8 +50,8 @@ func Test_SetSessionAndGetSession(t *testing.T) {
 		if err != nil {
 			t.Errorf("error: %w", err)
 		}
-		if status.SetStatusCode != STATUS_OK {
-			t.Errorf("bad status: want %s, get %s", STATUS_OK, status)
+		if status.StatusCode != 200 {
+			t.Errorf("bad status: want %d, get %d", 200, status.StatusCode)
 		}
 	}
 
@@ -83,8 +83,11 @@ func Test_SetSessionAndGetSession(t *testing.T) {
 		if err != nil {
 			t.Errorf("err: %v", err)
 		}
-		if status.GetStatusCode != expects[i] {
-			t.Errorf("GetSession err: expect %s ,but got %s\n", expects[i], status.GetStatusCode)
+		if status.Data != expects[i] {
+			t.Errorf("GetSession err: expect %s ,but got %s\n", expects[i], status.Data)
+		}
+		if status.StatusCode != 200 {
+			t.Errorf("GetSession err: expect %d ,but got %d\n", 200, status.StatusCode)
 		}
 	}
 }
@@ -114,8 +117,10 @@ func Test_GetSessionNilReturn(t *testing.T) {
 	if err != nil {
 		t.Errorf("%+v", err)
 	}
-	if getStatus.GetStatusCode != kvs.NilReturn {
-		t.Errorf("expect %s, but got %s", kvs.NilReturn, getStatus)
+	if getStatus.StatusCode != 500 {
+		t.Errorf("expect %d, but got %s", 500, getStatus)
 	}
-
+	if getStatus.ErrMessage != kvs.NilReturn {
+		t.Errorf("expect %s, but got %s", kvs.NilReturn, getStatus.ErrMessage)
+	}
 }

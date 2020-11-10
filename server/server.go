@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -10,13 +11,9 @@ import (
 	"session/kvs"
 	"session/session"
 
+	"github.com/gomodule/redigo/redis"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
-)
-
-var (
-	STATUS_OK  = "0"
-	STATUS_BAD = "-1"
 )
 
 type sessionServer struct {
@@ -29,21 +26,25 @@ func (ss *sessionServer) SetSession(ctx context.Context, request *session.Sessio
 
 	err := kvs.Set(userID, statusID, kvs.Conn)
 	if err != nil {
-		return &session.SetStatus{SetStatusCode: STATUS_BAD}, xerrors.Errorf("kvs.Set err :%w", err)
+		return &session.SetStatus{StatusCode: 500}, xerrors.Errorf("kvs.Set err :%w", err)
 	}
 	ss.success(ctx, request)
-	return &session.SetStatus{SetStatusCode: STATUS_OK}, nil
+	return &session.SetStatus{StatusCode: 200}, nil
 }
 
 func (ss *sessionServer) GetSession(ctx context.Context, request *session.SessionRequest) (*session.GetStatus, error) {
 	userID := request.UserID
-	status, err := kvs.Get(userID, kvs.Conn)
+	data, err := kvs.Get(userID, kvs.Conn)
 
+	// redisのNilReturn エラーだけは別途処理。
+	if unwrapErr := errors.Unwrap(err); unwrapErr == redis.ErrNil {
+		return &session.GetStatus{StatusCode: 500, ErrMessage: kvs.NilReturn}, nil
+	}
 	if err != nil {
-		return &session.GetStatus{GetStatusCode: STATUS_BAD}, xerrors.Errorf("kvs.Get err :%w", err)
+		return &session.GetStatus{StatusCode: 500, ErrMessage: err.Error()}, err
 	}
 	ss.success(ctx, request)
-	return &session.GetStatus{GetStatusCode: status}, nil
+	return &session.GetStatus{StatusCode: 200, Data: data}, nil
 }
 
 func (ss *sessionServer) success(ctx context.Context, request *session.SessionRequest) {
