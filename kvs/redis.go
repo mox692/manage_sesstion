@@ -15,7 +15,7 @@ const (
 )
 
 func RunRedis() error {
-	addr := os.Getenv("REDIS_ADDRESS") + ":" + os.Getenv("REDIS_PORT")
+	addr := os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT")
 	var err error
 	Conn, err = redis.Dial("tcp", addr)
 	if err != nil {

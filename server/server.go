@@ -20,6 +20,7 @@ type sessionServer struct {
 }
 
 func (ss *sessionServer) SetSession(ctx context.Context, request *session.SessionRequest) (*session.SetStatus, error) {
+	log.Printf("get reqest!!\n")
 	statusID := request.StatusID
 	userID := request.UserID
 
