@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"session/config"
 	"session/kvs"
 	"session/session"
 
@@ -21,6 +20,7 @@ type sessionServer struct {
 }
 
 func (ss *sessionServer) SetSession(ctx context.Context, request *session.SessionRequest) (*session.SetStatus, error) {
+	log.Printf("get reqest!!\n")
 	statusID := request.StatusID
 	userID := request.UserID
 
@@ -49,16 +49,16 @@ func (ss *sessionServer) GetSession(ctx context.Context, request *session.Sessio
 
 func (ss *sessionServer) success(ctx context.Context, request *session.SessionRequest) {
 	// *******************Todo: リクエスト時のログ処理
-	log.Println("get request.")
+	log.Println("get request! No err!")
 }
 
 func main() {
 
 	// 環境変数のセット
-	err := config.GetENV()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err := config.GetENV()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	lis, err := net.Listen("tcp", os.Getenv("SERVER_PORT"))
 	if err != nil {
@@ -71,10 +71,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("server runnnig!(port: %s)\n", os.Getenv("REDIS_PORT"))
+	fmt.Printf("redis server runnnig!(port: %s)\n", os.Getenv("REDIS_PORT"))
 	grpcServer := grpc.NewServer()
 	session.RegisterSessionServer(grpcServer, &sessionServer{})
 
+	fmt.Printf("gRPC server runnnig!(port: %s)\n", os.Getenv("SERVER_PORT"))
 	err = grpcServer.Serve(lis)
 	if err != nil {
 		log.Fatal(err)
